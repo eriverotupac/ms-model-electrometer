@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  electro:
+    build: .
+    ports:
+      - '8080:8080'
+    env_file:
+      - vault/.env
+  db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: db-sqlserver
+    environment:
+      - MSSQL_SA_PASSWORD=November@2023
+      - ACCEPT_EULA=Y
+      - MSSQL_DATA_DIR=/var/opt/sqlserver/data
+      - MSSQL_LOG_DIR=/var/opt/sqlserver/log
+      - MSSQL_BACKUP_DIR=/var/opt/sqlserver/backup
+    ports:
+      - '1433:1433'
+    volumes:
+      - sql-server-data:/var/opt/mssql/
+      - sqllog:/var/opt/sqlserver/log
+      - sqlbackup:/var/opt/sqlserver/backup
+      - sqldata:/var/opt/sqlserver/data/
+
+volumes:
+  sql-server-data:
+    driver: local
+  sqldata:
+  sqllog:
+  sqlbackup:
