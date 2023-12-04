@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"ms-model-electrometer/internal/models"
 	"ms-model-electrometer/internal/repositories"
 
@@ -25,8 +24,8 @@ func (s *DefaultService) GetInfo(ctx context.Context, model string) (*models.Ele
 
 	electrometer, err := s.electrometerRepo.GetElectrometerInfo(ctx, model)
 	if err != nil {
-		s.log.Errorf("failed to get the electrometer data: %v", err)
-		return nil, errors.New("failed to get electometer data")
+		s.log.Errorf("failed to get the electrometer data: %v", err.Error())
+		return nil, err
 	}
 	return electrometer, nil
 }

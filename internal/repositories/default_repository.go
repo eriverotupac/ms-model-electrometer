@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"ms-model-electrometer/internal/models"
 	"strings"
 
@@ -43,8 +45,13 @@ func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber
 		&lecturaActual)
 
 	if err != nil {
-		r.log.Warnf("Error:" + err.Error())
-		return nil, err
+		if err == sql.ErrNoRows {
+			r.log.Info("No records found")
+			return nil, errors.New("no records found")
+		} else {
+			r.log.Error("Error: " + err.Error())
+			return nil, err
+		}
 	}
 
 	return &models.ElectrometerResponse{

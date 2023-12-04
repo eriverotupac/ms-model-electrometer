@@ -32,12 +32,11 @@ func (mc *MainController) getElectrometerInfo(w http.ResponseWriter, r *http.Req
 	dec.DisallowUnknownFields()
 
 	var electrometerNumber string
-	err := dec.Decode(&electrometerNumber)
+	dec.Decode(&electrometerNumber)
 
 	elecRecord, err := mc.mainSvc.GetInfo(r.Context(), electrometerNumber)
 
 	if err != nil {
-
 		server.RenderError(r.Context(), w, err)
 		return
 	}

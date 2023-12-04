@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -25,11 +26,17 @@ func RenderJSON(ctx context.Context, w http.ResponseWriter, httpStatusCode int, 
 }
 
 func RenderError(ctx context.Context, w http.ResponseWriter, err error) {
-
-	payload := map[string]string{
-		"code":    strconv.Itoa(http.StatusInternalServerError),
-		"message": "something went wrong...." + err.Error(),
+	var payload = map[string]string{}
+	if strings.Contains(err.Error(), "records found") {
+		payload = map[string]string{
+			"code":    strconv.Itoa(http.StatusNotFound),
+			"message": err.Error(),
+		}
+	} else {
+		payload = map[string]string{
+			"code":    strconv.Itoa(http.StatusInternalServerError),
+			"message": "something went wrong...." + err.Error(),
+		}
 	}
-
 	RenderJSON(ctx, w, http.StatusInternalServerError, payload)
 }
