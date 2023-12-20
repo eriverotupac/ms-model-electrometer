@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"ms-model-electrometer/internal/server"
 	"ms-model-electrometer/internal/services"
 	"net/http"
@@ -20,7 +19,7 @@ func NewMainController(srv *server.HTTPServer, ms services.IService) *MainContro
 		mainSvc: ms,
 	}
 
-	srv.Router.Get("/electrometer_model", mc.getElectrometerInfo)
+	srv.Router.Get("/electro-model", mc.getElectrometerInfo)
 
 	return mc
 }
@@ -28,11 +27,8 @@ func NewMainController(srv *server.HTTPServer, ms services.IService) *MainContro
 func (mc *MainController) getElectrometerInfo(w http.ResponseWriter, r *http.Request) {
 	mc.log.Info("Incoming request to get electrometer info")
 
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
-
-	var electrometerNumber string
-	dec.Decode(&electrometerNumber)
+	query := r.URL.Query()
+	electrometerNumber := query.Get("number")
 
 	elecRecord, err := mc.mainSvc.GetInfo(r.Context(), electrometerNumber)
 
