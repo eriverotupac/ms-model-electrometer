@@ -6,5 +6,5 @@ import (
 )
 
 type IService interface {
-	GetInfo(ctx context.Context, model string) (*models.ElectrometerResponse, error)
+	GetInfo(ctx context.Context, num string, sucursal string, zona string) ([]models.ElectrometerResponse, error)
 }

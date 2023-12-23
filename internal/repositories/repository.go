@@ -7,5 +7,5 @@ import (
 
 // IRepository definition
 type IRepository interface {
-	GetElectrometerInfo(ctx context.Context, model string) (*models.ElectrometerResponse, error)
+	GetElectrometerInfo(ctx context.Context, num string, sucursal string, zona string) ([]models.ElectrometerResponse, error)
 }

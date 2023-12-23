@@ -28,9 +28,11 @@ func (mc *MainController) getElectrometerInfo(w http.ResponseWriter, r *http.Req
 	mc.log.Info("Incoming request to get electrometer info")
 
 	query := r.URL.Query()
-	electrometerNumber := query.Get("number")
+	number := query.Get("number")
+	sucursal := query.Get("sucursal")
+	zona := query.Get("zona")
 
-	elecRecord, err := mc.mainSvc.GetInfo(r.Context(), electrometerNumber)
+	elecRecord, err := mc.mainSvc.GetInfo(r.Context(), number, sucursal, zona)
 
 	if err != nil {
 		server.RenderError(r.Context(), w, err)

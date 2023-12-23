@@ -23,26 +23,31 @@ func NewDatabaseRepository(logger *zap.SugaredLogger, db *sqlx.DB) *DatabaseRepo
 	}
 }
 
-func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber string) (*models.ElectrometerResponse, error) {
-	query := `EXEC sp_miStoreProcedure 'input_var'`
+func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
+	query := `EXEC sp_miStoreProceduree 'input_var', 'sucursal', 'zona'`
 	query = strings.Replace(query, "input_var", elecNumber, -1)
+	query = strings.Replace(query, "sucursal", sucursal, -1)
+	query = strings.Replace(query, "zona", zona, -1)
 
-	var codigoSuministro string
-	var codigoMedidor string
-	var nombreMarca string
-	var nombreModelo string
-	var digitosDecimal string
-	var lecturaActual string
+	rows, err := r.db.Query(query)
 
-	row := r.db.QueryRowContext(ctx, query, elecNumber)
+	results := []models.ElectrometerResponse{}
 
-	err := row.Scan(
-		&codigoSuministro,
-		&codigoMedidor,
-		&nombreMarca,
-		&nombreModelo,
-		&digitosDecimal,
-		&lecturaActual)
+	defer rows.Close()
+	for rows.Next() {
+		electroResponse := models.ElectrometerResponse{}
+		err = rows.Scan(
+			&electroResponse.CodigoSuministro,
+			&electroResponse.CodigoMedidor,
+			&electroResponse.NombreMarca,
+			&electroResponse.NombreModelo,
+			&electroResponse.DigitosDecimal,
+			&electroResponse.LecturaActual)
+		if err != nil {
+			r.log.Error(err)
+		}
+		results = append(results, electroResponse)
+	}
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -54,11 +59,5 @@ func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber
 		}
 	}
 
-	return &models.ElectrometerResponse{
-		CodigoSuministro: codigoSuministro,
-		CodigoMedidor:    codigoMedidor,
-		NombreMarca:      nombreMarca,
-		NombreModelo:     nombreModelo,
-		LecturaActual:    lecturaActual,
-	}, nil
+	return results, nil
 }

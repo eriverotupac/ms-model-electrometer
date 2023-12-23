@@ -20,9 +20,8 @@ func NewDefaultService(logger *zap.SugaredLogger, r repositories.IRepository) *D
 	}
 }
 
-func (s *DefaultService) GetInfo(ctx context.Context, model string) (*models.ElectrometerResponse, error) {
-
-	electrometer, err := s.electrometerRepo.GetElectrometerInfo(ctx, model)
+func (s *DefaultService) GetInfo(ctx context.Context, num string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
+	electrometer, err := s.electrometerRepo.GetElectrometerInfo(ctx, num, sucursal, zona)
 	if err != nil {
 		s.log.Errorf("failed to get the electrometer data: %v", err.Error())
 		return nil, err
