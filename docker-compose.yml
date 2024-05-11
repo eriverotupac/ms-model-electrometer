@@ -17,12 +17,32 @@ services:
       - MSSQL_LOG_DIR=/var/opt/sqlserver/log
       - MSSQL_BACKUP_DIR=/var/opt/sqlserver/backup
     ports:
-      - '1433:1433'
+      - '1430:1433'
     volumes:
       - sql-server-data:/var/opt/mssql/
       - sqllog:/var/opt/sqlserver/log
       - sqlbackup:/var/opt/sqlserver/backup
       - sqldata:/var/opt/sqlserver/data/
+  sqlserver1:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver1
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Password01
+      - MSSQL_PID=Developer
+    ports:
+      - "1431:1433"
+
+  sqlserver2:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver2
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Password02
+      - MSSQL_PID=Developer
+    ports:
+      - "1432:1433"
+
 
 volumes:
   sql-server-data:

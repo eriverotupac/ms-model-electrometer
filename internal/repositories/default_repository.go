@@ -23,13 +23,13 @@ func NewDatabaseRepository(logger *zap.SugaredLogger, db *sqlx.DB) *DatabaseRepo
 	}
 }
 
-func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
-	query := `EXEC sp_miStoreProceduree 'input_var', 'sucursal', 'zona'`
-	query = strings.Replace(query, "input_var", elecNumber, -1)
-	query = strings.Replace(query, "sucursal", sucursal, -1)
-	query = strings.Replace(query, "zona", zona, -1)
+func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, dbConnection *sqlx.DB, periodo string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
+	query := `EXEC sp_miStoreProcedure01 'input_01', 'input_02', 'input_03'`
+	query = strings.Replace(query, "input_01", periodo, -1)
+	query = strings.Replace(query, "input_02", sucursal, -1)
+	query = strings.Replace(query, "input_03", zona, -1)
 
-	rows, err := r.db.Query(query)
+	rows, err := dbConnection.Query(query)
 
 	results := []models.ElectrometerResponse{}
 
@@ -60,4 +60,37 @@ func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, elecNumber
 	}
 
 	return results, nil
+}
+
+func (r *DatabaseRepository) GetDatabaseConnectionString(ctx context.Context, sucursal string) (string, error) {
+	query := `EXEC sp_get_connection_string 'sucursal'`
+	query = strings.Replace(query, "sucursal", sucursal, -1)
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		r.log.Error("Error: " + err.Error())
+		return "", err
+	}
+	var ConexionBase string
+
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&ConexionBase)
+		if err != nil {
+			r.log.Error(err)
+		}
+
+	}
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			r.log.Info("No records found")
+			return "", errors.New("no records found")
+		} else {
+			r.log.Error("Error: " + err.Error())
+			return "", err
+		}
+	}
+
+	return ConexionBase, nil
 }

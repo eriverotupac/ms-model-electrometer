@@ -9,14 +9,14 @@ import (
 )
 
 type MainController struct {
-	mainSvc services.IService
-	log     *zap.SugaredLogger
+	electrometerSvc services.IService
+	log             *zap.SugaredLogger
 }
 
 func NewMainController(srv *server.HTTPServer, ms services.IService) *MainController {
 	mc := &MainController{
-		log:     srv.Logger,
-		mainSvc: ms,
+		log:             srv.Logger,
+		electrometerSvc: ms,
 	}
 
 	srv.Router.Get("/electro-model", mc.getElectrometerInfo)
@@ -28,11 +28,11 @@ func (mc *MainController) getElectrometerInfo(w http.ResponseWriter, r *http.Req
 	mc.log.Info("Incoming request to get electrometer info")
 
 	query := r.URL.Query()
-	number := query.Get("number")
+	periodo := query.Get("periodo")
 	sucursal := query.Get("sucursal")
 	zona := query.Get("zona")
 
-	elecRecord, err := mc.mainSvc.GetInfo(r.Context(), number, sucursal, zona)
+	elecRecord, err := mc.electrometerSvc.GetInfo(r.Context(), periodo, sucursal, zona)
 
 	if err != nil {
 		server.RenderError(r.Context(), w, err)
