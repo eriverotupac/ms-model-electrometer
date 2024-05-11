@@ -9,6 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const DATABASE_URL_EXAMPLE = "sqlserver://<usuario>:<password>@<dominio>:<puerto>?database=master&connection+timeout=30"
+
 func SetupDatabase(env *Environment, logger *zap.SugaredLogger) *sqlx.DB {
 	logger.Info("start connection to database")
 	fmt.Println(env.DatabaseUrl)
