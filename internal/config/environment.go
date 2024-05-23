@@ -8,8 +8,12 @@ import (
 )
 
 type Environment struct {
-	DatabaseUrl string
-	AppPort     string
+	DatabaseUrl  string
+	AppPort      string
+	KeyForCipher string
+	SystemCode   string
+	UserDB       string
+	PasswordDB   string
 }
 
 func GetVariables() *Environment {
@@ -20,7 +24,11 @@ func GetVariables() *Environment {
 	}
 
 	return &Environment{
-		DatabaseUrl: os.Getenv("DATABASE_URL"),
-		AppPort:     os.Getenv("PORT"),
+		DatabaseUrl:  os.Getenv("DATABASE_URL"),
+		AppPort:      os.Getenv("PORT"),
+		KeyForCipher: os.Getenv("KEY_CIPHER"),
+		SystemCode:   os.Getenv("CODIGO_SISTEMA"),
+		UserDB:       os.Getenv("DATABASE_USER"),
+		PasswordDB:   os.Getenv("DATABASE_PASSWORD"),
 	}
 }

@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"ms-model-electrometer/internal/models"
@@ -23,7 +22,7 @@ func NewDatabaseRepository(logger *zap.SugaredLogger, db *sqlx.DB) *DatabaseRepo
 	}
 }
 
-func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, dbConnection *sqlx.DB, periodo string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
+func (r *DatabaseRepository) GetElectrometerInfo(dbConnection *sqlx.DB, periodo string, sucursal string, zona string) ([]models.ElectrometerResponse, error) {
 	query := `EXEC sp_miStoreProcedure01 'input_01', 'input_02', 'input_03'`
 	query = strings.Replace(query, "input_01", periodo, -1)
 	query = strings.Replace(query, "input_02", sucursal, -1)
@@ -62,8 +61,9 @@ func (r *DatabaseRepository) GetElectrometerInfo(ctx context.Context, dbConnecti
 	return results, nil
 }
 
-func (r *DatabaseRepository) GetDatabaseConnectionString(ctx context.Context, sucursal string) (string, error) {
-	query := `EXEC sp_get_connection_string 'sucursal'`
+func (r *DatabaseRepository) GetDatabaseConnectionString(sucursal string, codigoSistema string) (string, error) {
+	query := `EXEC _spObtenerContextoSeguridad 'cod_sistema', 'sucursal'`
+	query = strings.Replace(query, "cod_sistema", codigoSistema, -1)
 	query = strings.Replace(query, "sucursal", sucursal, -1)
 
 	rows, err := r.db.Query(query)
@@ -83,7 +83,7 @@ func (r *DatabaseRepository) GetDatabaseConnectionString(ctx context.Context, su
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			r.log.Info("No records found")
 			return "", errors.New("no records found")
 		} else {

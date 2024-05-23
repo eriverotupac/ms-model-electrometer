@@ -32,7 +32,7 @@ func (mc *MainController) getElectrometerInfo(w http.ResponseWriter, r *http.Req
 	sucursal := query.Get("sucursal")
 	zona := query.Get("zona")
 
-	elecRecord, err := mc.electrometerSvc.GetInfo(r.Context(), periodo, sucursal, zona)
+	elecRecord, err := mc.electrometerSvc.GetInfo(periodo, sucursal, zona)
 
 	if err != nil {
 		server.RenderError(r.Context(), w, err)
