@@ -39,11 +39,14 @@ func (s *DefaultService) GetInfo(periodo string, sucursal string, zona string) (
 		return nil, err
 	}
 
+	s.log.Info("get connection string encrypted from db: %v", databaseUrlCiphered)
+
 	databaseData, err := s.cipher.DecryptString(databaseUrlCiphered)
 	if err != nil {
 		s.log.Errorf("failed to decrypt database url: %v", err.Error())
 		return nil, err
 	}
+	s.log.Info("value got after decipher: %v", databaseData)
 
 	dataBaseServerValues := strings.Split(databaseData, "|")
 	if len(dataBaseServerValues) == 0 {
@@ -56,6 +59,8 @@ func (s *DefaultService) GetInfo(periodo string, sucursal string, zona string) (
 	connDatabaseName := dataBaseServerValues[1]
 
 	databaseUrl := fmt.Sprintf(DATABASE_URL_EXAMPLE, s.configs.UserDB, s.configs.PasswordDB, connServer, connDatabaseName)
+
+	s.log.Info("connection string builded: %v", databaseUrl)
 
 	dbConnection, err := sqlx.Connect("sqlserver", databaseUrl)
 
