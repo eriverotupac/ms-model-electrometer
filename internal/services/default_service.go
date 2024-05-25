@@ -35,32 +35,39 @@ func (s *DefaultService) GetInfo(periodo string, sucursal string, zona string) (
 	databaseUrlCiphered, err := s.electrometerRepo.GetDatabaseConnectionString(sucursal, codigoSistema)
 
 	if err != nil {
-		s.log.Errorf("failed to get the connection string: %v", err.Error())
+		s.log.Errorf("failed to get the connection string: %s", err.Error())
 		return nil, err
 	}
 
-	s.log.Info("get connection string encrypted from db: %v", databaseUrlCiphered)
+	s.log.Infof("get connection string encrypted from db: %s", databaseUrlCiphered)
 
 	databaseData, err := s.cipher.DecryptString(databaseUrlCiphered)
 	if err != nil {
 		s.log.Errorf("failed to decrypt database url: %v", err.Error())
 		return nil, err
 	}
-	s.log.Info("value got after decipher: %v", databaseData)
+	s.log.Infof("value got after decipher: %v", databaseData)
 
 	dataBaseServerValues := strings.Split(databaseData, "|")
+
 	if len(dataBaseServerValues) == 0 {
-		s.log.Errorf("failed to parse database connection from unciphered data: %v", err.Error())
+		s.log.Error("failed to parse database connection")
 		return nil, err
 	}
 
 	connServer := dataBaseServerValues[0]
-	connServer = strings.Replace(connServer, "\\", "/", 1)
+	ipAndServer := strings.Split(connServer, "\\")
+
+	if len(ipAndServer) == 0 {
+		s.log.Errorf("failed to parse database server from string connection")
+		return nil, err
+	}
+	connIP := ipAndServer[0]
 	connDatabaseName := dataBaseServerValues[1]
 
-	databaseUrl := fmt.Sprintf(DATABASE_URL_EXAMPLE, s.configs.UserDB, s.configs.PasswordDB, connServer, connDatabaseName)
+	databaseUrl := fmt.Sprintf(DATABASE_URL_EXAMPLE, s.configs.UserDB, s.configs.PasswordDB, connIP, connDatabaseName)
 
-	s.log.Info("connection string builded: %v", databaseUrl)
+	s.log.Infof("connection string builded: %s", databaseUrl)
 
 	dbConnection, err := sqlx.Connect("sqlserver", databaseUrl)
 
